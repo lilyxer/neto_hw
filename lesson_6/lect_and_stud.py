@@ -2,6 +2,14 @@ from functools import total_ordering
 from random import randint, choice, seed
 
 
+class CourseError(BaseException):
+    ...
+
+
+class GradeError(BaseException):
+    ...
+
+
 class Mentor:
     def __init__(self, name: str, surname: str) -> None:
         """
@@ -80,17 +88,13 @@ class Student:
         if isinstance(lecturer, Lecturer):
             if all(map(lambda x: course in x, (self.courses_in_progress, 
                                                lecturer.courses_attached))):
-                if grade in range(1, 11):
+                if isinstance(grade, int) and grade in range(1, 11):
                     lecturer.grades_from_stud.setdefault(course, []).append(grade)
-                    print(f'Ваша оценка {grade} по предмету {course} '
-                          f'для {" ".join((lecturer.surname, lecturer.name))} записана')
-                else:
-                    print(f'ваша оценка: {grade}, не является валидной')
-            else:
-                ... # чтобы меньше спама было при заполнении
-                # print(f'оценка не проставлена, курс по {course} не является общим')
-        else:
-            print(f'{lecturer} является {type(lecturer)} - не {Lecturer}')
+                    return True
+                raise GradeError(f'{grade} не является валидной оценкой')
+            raise CourseError(f'{course} не является общим')
+        raise TypeError(f'{lecturer.surname} не явлется лектором')
+
 
     def _get_all_grades(self) -> float|None:
         """
@@ -137,17 +141,57 @@ class Reviewer(Mentor):
         if isinstance(student, Student):
             if all(map(lambda x: course in x, (student.courses_in_progress, 
                                                self.courses_attached))):
-                student.grades.setdefault(course, []).append(grade)
-                print(f'Ваша оценка {grade} по предмету {course} '
-                          f'для {" ".join((student.surname, student.name))} записана')
-            else:
-                ... # чтобы не спамить
-                # print(f'оценка не проставлена, курс по {course} не является общим')
-        else:
-            print(f'{student} является {type(student)} - не {Student}')
+                if isinstance(grade, int) and grade in range(1, 11):
+                    student.grades.setdefault(course, []).append(grade)
+                    return True
+                raise GradeError(f'{grade} не является валидной оценкой')
+            raise CourseError(f'{course} не является общим')
+        raise TypeError(f'{student.surname} не явлется студентом')
 
     def __str__(self) -> str:
         return f'Имя: {self.name}\nФамилия: {self.surname}'
+
+
+def students_eval(stud: Student, lect: Lecturer):
+    """
+    функция рандомно проставялет оценки лекторам от студентов.
+    курсы должны совпадать
+    результат выводится на печать и валидные оценки попадают в поле экземпляра
+    """
+    print(f'общие курсы у {stud.name} и {lect.name}: ', end='')
+    print(*set(stud.courses_in_progress)&set(lect.courses_attached))
+    for _ in range(20):
+        try:
+            stud.rate_lecturer(lecturer=lect, course=choice(all_courses),
+                                grade=randint(1, 10))
+        except (TypeError, GradeError, CourseError): 
+            pass
+    print('проверим правильность заполнения')
+    print(lect.grades_from_stud)
+    print('-'*80)
+    print(f'проверим правильность заполнения\n'
+            f'Оценки лектора {lect.surname}\n'
+            f'{lect.surngrades_from_studame}\n'
+            f'{"-"*80}')
+
+def reviewer_eval(rev: Reviewer, stud: Student):
+    """
+    функция рандомно проставялет оценки студентам от экспертов.
+    экспрет может оценивать все курсы 
+    результат выводится на печать и валидные оценки попадают в поле экземпляра
+    """
+    print(f'общие курсы у {stud.name} и {rev.name}: ', end='')
+    print(*set(rev.courses_attached)&set(stud.courses_in_progress))
+    for _ in range(20):
+        try:
+            rev.rate_hw(student=stud, course=choice(all_courses), 
+                        grade=randint(1, 10))
+        except (TypeError, GradeError, CourseError): 
+            pass            
+    print(f'проверим правильность заполнения\n'
+        f'Оценки студента {stud.surname}\n'
+        f'{stud.grades}\n'
+        f'{"-"*80}')
 
 if __name__ == '__main__':
     seed(100) # данные будут постоянны
@@ -175,42 +219,15 @@ if __name__ == '__main__':
     reviewer_2.courses_attached.extend(all_courses)
 
     # ставим оценки преподавателям
-    def students_eval(stud: Student, lect: Lecturer):
-        """
-        функция рандомно проставялет оценки лекторам от студентов.
-        курсы должны совпадать
-        результат выводится на печать и валидные оценки попадают в поле экземпляра
-        """
-        print(f'общие курсы у {stud.name} и {lect.name}: ', end='')
-        print(*set(stud.courses_in_progress)&set(lect.courses_attached))
-        for _ in range(20):
-            stud.rate_lecturer(lecturer=lect, course=choice(all_courses),
-                               grade=randint(1, 10))
-        print('проверим правильность заполнения')
-        print(lect.grades_from_stud)
-        print('-'*80)
-
     students_eval(stud=student_1, lect=lecturer_1)
     students_eval(stud=student_1, lect=lecturer_2)
     students_eval(stud=student_2, lect=lecturer_1)
     students_eval(stud=student_2, lect=lecturer_2)
 
     # ставим оценки студентам
-    def reviewer_eval(rev: Reviewer, stud: Student):
-        """
-        функция рандомно проставялет оценки студентам от экспертов.
-        экспрет может оценивать все курсы 
-        результат выводится на печать и валидные оценки попадают в поле экземпляра
-        """
-        print(f'общие курсы у {rev.name} и {stud.name}: ', end='')
-        print(*set(rev.courses_attached)&set(stud.courses_in_progress))
-        for _ in range(20):
-            rev.rate_hw(student=stud, course=choice(all_courses), grade=randint(1, 10))
-        print('проверим правильность заполнения')
-        print(stud.grades)
-        print('-'*80)
-
     reviewer_eval(stud=student_1, rev=reviewer_1)
     reviewer_eval(stud=student_1, rev=reviewer_2)
     reviewer_eval(stud=student_2, rev=reviewer_1)
     reviewer_eval(stud=student_2, rev=reviewer_2)
+
+    
