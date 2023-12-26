@@ -124,7 +124,7 @@ class Student:
 class Reviewer(Mentor):
     def rate_hw(self, student: Student, course: str, grade: int) -> bool|str:
         """
-        метод Ментора, выставляет оценку студенту
+        метод эксперта, выставляет оценку студенту
         student - должен быть class Student
         course - название курса, курс должен быть как у ментора так и у студента
         grade - оценка
@@ -142,13 +142,3 @@ class Reviewer(Mentor):
     def __str__(self) -> str:
         return f'Имя: {self.name}\nФамилия: {self.surname}'
 
-l = [2, 9, 1, 6, 8, 2, 5]
-
-4.71
-l = [7, 5, 1, 7, 4, 10, 2, 1, 9, 6]
-print(sum(l)/len(l))
-l = [6, 1, 8, 1, 6, 4, 2, 9, 8]
-print(sum(l)/len(l))
-10.2
-[7, 2, 2, 10, 9, 2, 4, 4, 10, 4, 1]
-5.0
