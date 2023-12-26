@@ -16,7 +16,7 @@ def students_eval(stud: Student, lect: Lecturer):
                             grade=randint(1, 10))
     print(f'проверим правильность заполнения\n'
             f'Оценки лектора {lect.surname}\n'
-            f'{lect.grades_from_stud}\n'
+            f'{lect.grades}\n'
             f'{"-"*80}')
 
 def reviewer_eval(rev: Reviewer, stud: Student):
@@ -67,18 +67,24 @@ def negative_check():
                                 course='SQL', grade=1)
                                 == 'Lectorova не явлется студентом')
 
-def average_rating_course(students: list, course: str) -> float:
+def avg(lst: list) -> float:
     """
-    students - список студентов
+    lst - список с оценками
+    return среднее арифмитическое
+    """
+    return round(sum(lst)/len(lst), 2)
+
+def average_rating_course(peoples: list, course: str) -> float:
+    """
+    peoples - список студентов либо лекторов
     course - название курса
     у студента все оценки хранятся в поле grades
     """
-    grades = 0.0
-    for stud in students:
-        if tmp := stud.grades.get(course, 0):
-            grades += sum(tmp)/len(tmp)
-            print(tmp)
-    return round(grades, 2)
+    list_grades = []
+    for people in peoples:
+        if tmp := people.grades.get(course):
+            list_grades.append(avg(tmp))
+    return avg(list_grades) if list_grades else 0.0
 
 if __name__ == '__main__':
     seed(100) # данные будут постоянны
@@ -121,8 +127,12 @@ if __name__ == '__main__':
     negative_check()
 
     # средняя оценка по домашнему заданию за курс, у всех студентов
-    print(average_rating_course(students=[student_1, student_2], course='Git'))
-    print(average_rating_course(students=[student_1, student_2], course='SQL'))
-    print(average_rating_course(students=[student_1, student_2], course='Python'))
+    print(average_rating_course(peoples=[student_1, student_2], course='Git'))
+    print(average_rating_course(peoples=[student_1, student_2], course='SQL'))
+    print(average_rating_course(peoples=[student_1, student_2], course='Python'))
+    # средняя оценка по домашнему заданию за курс, у всех лекторов
+    print(average_rating_course(peoples=[lecturer_1, lecturer_2], course='Git'))
+    print(average_rating_course(peoples=[lecturer_1, lecturer_2], course='SQL'))
+    print(average_rating_course(peoples=[lecturer_1, lecturer_2], course='Python'))
     
     

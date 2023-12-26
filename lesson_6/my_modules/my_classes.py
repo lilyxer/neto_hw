@@ -20,10 +20,10 @@ class Mentor:
 class Lecturer(Mentor):
     def __init__(self, name: str, surname: str) -> None:
         """
-        grades_from_stud: dict - словарь с оценками от студентов по общему курсу {'python': []}
+        grades: dict - словарь с оценками от студентов по общему курсу {'python': []}
         """
         super().__init__(name, surname)
-        self.grades_from_stud = {}
+        self.grades = {}
 
     def _get_all_grades(self) -> float|None:
         """
@@ -31,8 +31,8 @@ class Lecturer(Mentor):
         в один массив и возвращает среднее если есть хотя бы одна оценка
         """
         all_grades = []
-        if self.grades_from_stud:
-            for x in self.grades_from_stud.values():
+        if self.grades:
+            for x in self.grades.values():
                 all_grades.extend(x)
         return round(sum(all_grades) / len(all_grades), 1) if all_grades else 0.0
 
@@ -80,7 +80,7 @@ class Student:
             if all(map(lambda x: course in x, (self.courses_in_progress, 
                                                lecturer.courses_attached))):
                 if isinstance(grade, int) and grade in range(1, 11):
-                    lecturer.grades_from_stud.setdefault(course, []).append(grade)
+                    lecturer.grades.setdefault(course, []).append(grade)
                     return True
                 return f'{grade} не является валидной оценкой'
             return f'{course} не является общим'
@@ -141,3 +141,14 @@ class Reviewer(Mentor):
 
     def __str__(self) -> str:
         return f'Имя: {self.name}\nФамилия: {self.surname}'
+
+l = [2, 9, 1, 6, 8, 2, 5]
+
+4.71
+l = [7, 5, 1, 7, 4, 10, 2, 1, 9, 6]
+print(sum(l)/len(l))
+l = [6, 1, 8, 1, 6, 4, 2, 9, 8]
+print(sum(l)/len(l))
+10.2
+[7, 2, 2, 10, 9, 2, 4, 4, 10, 4, 1]
+5.0
