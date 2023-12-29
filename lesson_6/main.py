@@ -78,7 +78,7 @@ def average_rating_course(peoples: list, course: str) -> float:
     """
     peoples - список студентов либо лекторов
     course - название курса
-    у студента все оценки хранятся в поле grades
+    все оценки хранятся в поле grades
     """
     list_grades = []
     for people in peoples:
