@@ -1,5 +1,6 @@
 from random import choice, seed
 
+
 class CookBook:
     def __init__(self) -> None:
         self.book = {}
@@ -41,13 +42,14 @@ class CookBook:
                     f'обратитесь к моему словарю book: \n'
                     f'book[\'омлет\']')
         return 'Я не знаю ниодного рецепта'
-    
-    def get_shop_list_by_dishes(self, list_dishes: list, person_count: int=1) -> dict[dict]:
+
+    def get_shop_list_by_dishes(self, list_dishes: list, person_count: int = 1) -> dict[dict]:
         all_products = {}
         for dish in list_dishes:
             for ingr_s in self.book[dish]:
                 if ingr_s['ingredient_name'] in all_products:
-                    all_products[ingr_s['ingredient_name']]['quantity'] += ingr_s['quantity'] * person_count 
+                    all_products[ingr_s['ingredient_name']
+                                 ]['quantity'] += ingr_s['quantity'] * person_count
                 else:
                     all_products[ingr_s['ingredient_name']] = {
                         'quantity': ingr_s['quantity'] * person_count,
@@ -57,14 +59,16 @@ class CookBook:
 
     def __str__(self) -> str:
         return str(self.book)
-    
+
     __repr__ = __str__
 
-if __name__ == '__main__':    
+
+if __name__ == '__main__':
     my_book = CookBook()
     my_book.read('res.txt')
     all_recipes = list(my_book.book)
     for elem in my_book.book['Запеченный картофель']:
         print(elem)
-    print(my_book.get_shop_list_by_dishes([choice(all_recipes) for _ in range(3)], 2))
+    print(my_book.get_shop_list_by_dishes(
+        [choice(all_recipes) for _ in range(3)], 2))
     print(my_book.book)
