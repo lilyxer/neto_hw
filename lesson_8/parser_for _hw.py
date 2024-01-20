@@ -46,7 +46,3 @@ if __name__ == '__main__':
     # print(my_obj) # выведет подсказку для работы с объектом
     print(my_obj.get_top_ten(my_obj.news_json))
     print(my_obj.get_top_ten(my_obj.news_xml))
-
-    d = {"hello": "python", "goodbye": 'java'}
-    result = json.dumps(d)
-    print(result)
