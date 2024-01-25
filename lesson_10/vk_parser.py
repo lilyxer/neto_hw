@@ -1,17 +1,7 @@
-from environs import Env
-from requests.exceptions import ConnectionError
+import requests
 from tqdm import tqdm
 from time import sleep
-import requests
-
-
-def config(token: str, owner: str, album: str) -> dict:
-    env = Env()
-    env.read_env()
-
-    return {'access_token': env(token),
-            'owner_id': env(owner),
-            'album_id': env(album)}
+from requests.exceptions import ConnectionError
 
 
 class VKParser:
@@ -32,9 +22,10 @@ class VKParser:
         """
         date = photo.get('date', 0)
         like = photo.get('likes', {}).get('count', 0)
-        self.photos[(like, date)] = max(photo.get('sizes'), key=lambda x: self.SIZES[x['type']])['url']
+        self.photos[(like, date)] = max(photo.get('sizes'), key=lambda x: self.SIZES[x['type']])#['url']
 
     def get(self):
+        """запускаем парсер ВК"""
         params = {
             'access_token': self.token,
             'owner_id': self.id_,
@@ -55,14 +46,32 @@ class VKParser:
             print('Сервер вернул ошибку')
             raise e
 
-if __name__ == '__main__':
-    my_ = config('access_token', 'owner_id', 'album_id')
-    if not all(my_.values()):
-        for k, v in my_.items():
-            if not v:
-                while not v:
-                    v = input(f'значение {k} не заполнено, ожидаю ввод: ')
-                my_[k] = v
-    parse = VKParser(*my_.values())
-    parse.get()
+# if __name__ == '__main__':
+#     import requests
+
+#     from environs import Env
+#     from requests.exceptions import ConnectionError
+#     from tqdm import tqdm
+#     from time import sleep
+
+#     from vk_parser import VKParser
+
+
+#     def config(token: str, owner: str, album: str) -> dict:
+#         env = Env()
+#         env.read_env()
+
+#         return {'access_token': env(token),
+#                 'owner_id': env(owner),
+#                 'album_id': env(album)}
+
+#     my_ = config('access_token', 'owner_id', 'album_id')
+#     if not all(my_.values()):
+#         for k, v in my_.items():
+#             if not v:
+#                 while not v:
+#                     v = input(f'значение {k} не заполнено, ожидаю ввод: ')
+#                 my_[k] = v
+#     parse = VKParser(*my_.values())
+#     parse.get()
     # print(parse.photos)
