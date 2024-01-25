@@ -45,33 +45,3 @@ class VKParser:
         except ConnectionError as e:
             print('Сервер вернул ошибку')
             raise e
-
-# if __name__ == '__main__':
-#     import requests
-
-#     from environs import Env
-#     from requests.exceptions import ConnectionError
-#     from tqdm import tqdm
-#     from time import sleep
-
-#     from vk_parser import VKParser
-
-
-#     def config(token: str, owner: str, album: str) -> dict:
-#         env = Env()
-#         env.read_env()
-
-#         return {'access_token': env(token),
-#                 'owner_id': env(owner),
-#                 'album_id': env(album)}
-
-#     my_ = config('access_token', 'owner_id', 'album_id')
-#     if not all(my_.values()):
-#         for k, v in my_.items():
-#             if not v:
-#                 while not v:
-#                     v = input(f'значение {k} не заполнено, ожидаю ввод: ')
-#                 my_[k] = v
-#     parse = VKParser(*my_.values())
-#     parse.get()
-    # print(parse.photos)
