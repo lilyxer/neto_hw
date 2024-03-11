@@ -40,5 +40,7 @@ if __name__ == '__main__':
             'host': env('HOST'),
             'port': env('PORT')
         }
+
+
     conf = config()
     create_database(conf)
