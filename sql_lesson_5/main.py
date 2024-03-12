@@ -1,5 +1,6 @@
 import sqlalchemy as sa
 from sqlalchemy.orm import sessionmaker
+from datetime import datetime
 from classes import *
 from create_db import create_database
 from dump_json import *
@@ -9,7 +10,7 @@ from dump_json import *
 # Data Source Name
 # необходимо прописать вашу БД и данные для подключения
 _config = config()
-DSN = f"postgresql://{_config['login']}:{_config['password']}@{_config['host']}:{_config['port']}/{_config['db']}"
+DSN = f"postgresql://{_config['login']}:{_config['password']}@{_config['host']}:{_config['port']}/{_config['my_db']}"
 engine = sa.create_engine(DSN)
 
 create_database(_config)
@@ -35,39 +36,26 @@ def drop_to_bd(my_dict: dict) -> None:
 
 def select_shop(session) -> str:
     """
-    Выводит название магазинов (shop), в которых представлены
-    книги конкретного издателя и есть в наличии
-    SELECT DISTINCT(shop.name)
-    FROM shop
-    INNER JOIN stock ON shop.id = stock.id_shop
-    INNER JOIN book ON book.id = stock.id_book
-    WHERE book.id_publisher = (
-        SELECT publisher.id
-        FROM publisher
-        WHERE publisher.name = '%s') AND stock.count > 0;
+    принимает имя или идентификатор издателя (publisher)
+    Выводит построчно факты покупки книг этого издателя
     """
-    publ = '4' #input('введите название или id издателя ')
+    publ = '3'
 
-    if publ.isdigit():
-        subq = session.query(Publisher).filter(Publisher.id == int(publ)).subquery()
-        publ = session.query(Publisher).filter(Publisher.id == int(publ)).all()
+    subq = (session.query(Publisher).filter(Publisher.id == int(publ)).subquery()
+            if publ.isdigit() else
+            session.query(Publisher).filter(Publisher.name == publ).subquery())
 
-    else:
-        subq = session.query(Publisher).filter(Publisher.name == publ).subquery()
-        publ = session.query(Publisher).filter(Publisher.name == publ).all()
-
-    if publ:
-        publ = publ[0]
-        if (
-            response_query := session.query(Shop)
-            .join(Stock)
-            .join(Book)
-            .join(subq, Book.id_publisher == subq.c.id)
-            .filter(Stock.count > 0)
-            .all()
-        ):
-            response_query = ', '.join([str(r) for r in response_query])
-            return f'{publ} найден в {response_query}'
+    if (response_query := session.query(Book.title, Shop.name,
+                                        Sale.price * Sale.count, Sale.date_sale)
+                                        .select_from(Shop)
+                                        .join(Stock)
+                                        .join(Book)
+                                        .join(Sale)
+                                        .join(subq, Book.id_publisher == subq.c.id)
+                                        .filter(Stock.count > 0)
+                                        .all()):
+        for book, publisher, total, dt in response_query:
+            print(f"{book: <40} | {publisher: <10} | {total: <8} | {datetime.strftime(dt, '%d-%m-%Y')}")
 
     return 'издатель в магазинах не найден'
 
@@ -77,6 +65,6 @@ if answer := get_file(URL):
     drop_to_bd(answer)
 
 # выборка магазина
-print(select_shop(session))
+select_shop(session)
 
 session.close()

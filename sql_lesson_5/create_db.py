@@ -17,7 +17,7 @@ def create_database(_config):
         cur.execute("""CREATE DATABASE shop_db;""")
         print('[+] База данных shop_db создана')
     except Exception as e:
-        print('[-] База данных vkinder_db была создана ранее')
+        print('[-] База данных shop_db была создана ранее')
         conn.rollback()
     conn.close()
 
