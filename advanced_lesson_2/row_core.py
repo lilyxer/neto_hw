@@ -29,10 +29,10 @@ def parce_row(dct: dict) -> dict:
     if phone:= dct.get('phone'):
         pattern = r'(\+7|8)[ -]?\(?(\d{3})\)?[ -]?\(?(\d{3})[ -]?(\d{2})[ -]?(\d{2})[\D]*(\d{4})?'
         s = re.search(pattern, phone)
-        s = [x for x in s.groups() if x]
-        phone = ('{}({}){}-{}-{}'.format(*s)
-                 if len(s) == 5 else
-                 '{}({}){}-{}-{} доб.{}'.format(*s)
+        s = [x for x in s.groups() if x][1:]
+        phone = ('+7({}){}-{}-{}'.format(*s)
+                 if len(s) == 4 else
+                 '+7({}){}-{}-{} доб.{}'.format(*s)
         )
         dct['phone'] = phone
     return dct
